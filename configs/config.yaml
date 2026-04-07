@@ -1,0 +1,299 @@
+# ============================================================================
+# VLex-RIA Legal VN Pipeline — Public Datasets (No HF Auth Required)
+# ============================================================================
+# 
+# Pretrain: undertheseanlp/UTS_VLC — Bộ Luật dân sự, hình sự, hiến pháp...
+#           318 docs × ~444K chars/doc 
+#           → chunked thành ~50K+ samples @ 512 tokens
+# SFT:      YuITC/Vietnamese-Legal-Documents — Q&A pháp lý (89K+ samples)
+# RL:       YuITC/Vietnamese-Legal-Documents — chuyển sang chosen/rejected
+# Tokenizer: vinai/phobert-base (64K vocab, Vietnamese BPE)
+# ============================================================================
+
+experiment_name: "legal-vn-public"
+
+# Model Architecture
+model:
+  # Cấu hình cơ bản
+  vocab_size: 64000              # Kích thước từ vựng của PhoBERT (64K)
+  hidden_size: 128               # D: Dimension ẩn của mô hình (d_model)
+  max_position_embeddings: 512   # Maximum sequence length (Đủ rộng cho văn bản luật)
+  num_hidden_layers: 4           # Số lượng transformer blocks
+  
+  # Multi-head Latent Attention
+  num_attention_heads: 4         # H: Số lượng query heads
+  head_dim: 32                   # d_h: Dimension mỗi head
+  kv_lora_rank: 32               # d_c: Kích thước nén KV (c_kv)
+  q_lora_rank: 48                # d_c': Kích thước nén Q (c_q)
+  qk_nope_head_dim: 16           # d_h^nope: Non-positional embedding dim per head
+  qk_rope_head_dim: 16           # d_h^rope: Rotary positional embedding dim per head
+  v_head_dim: 32                 # d_h^v: Value head dimension
+  
+  # Rotary Position Embedding
+  rope_theta: 10000.0           
+  rope_scaling: null             
+  
+  # DeepSeekMoE - Mixture of Experts
+  moe:
+    enabled: true
+    num_experts: 4               
+    num_experts_per_tok: 1       
+    num_shared_experts: 1        
+    expert_hidden_size: 256      
+    aux_loss_alpha: 0.001        
+    seq_aux_loss: true           
+    routed_scaling_factor: 1.0   
+    
+    # Kỹ thuật Routing
+    router_bias: false         
+    router_jitter_noise: 0.0    
+    
+  # Vị trí đặt MoE
+  moe_layer_freq: 2              
+  first_moe_layer: 1             
+  
+  # Standard FFN 
+  intermediate_size: 512 
+  hidden_act: silu               
+  
+  # Multi-Token Prediction 
+  mtp:
+    enabled: true                
+    num_predict_tokens: 1        
+    mtp_loss_weight: 0.3
+  
+  # Kỹ thuật Regularization
+  hidden_dropout: 0.0
+  attention_dropout: 0.0
+  expert_dropout: 0.0
+  
+  # Normalization
+  rms_norm_eps: 1.0e-6
+  
+  # Khởi tạo Embeddings
+  tie_word_embeddings: true      
+  initializer_range: 0.02
+
+# Pretraining
+pretraining:
+  batch_size: 4                  
+  num_epochs: 3                  
+  learning_rate: 5.0e-4
+  min_learning_rate: 1.0e-6
+  warmup_steps: 200              
+  max_steps: 5000                
+  
+  # Kỹ thuật tính Grad
+  gradient_accumulation_steps: 4 
+  max_grad_norm: 1.0             
+  
+  # Optimizer 
+  optimizer: adamw
+  weight_decay: 0.1
+  adam_beta1: 0.9
+  adam_beta2: 0.95
+  adam_epsilon: 1.0e-8
+  
+  # LR Schedule
+  lr_scheduler: cosine           
+  
+  # Lưu trữ Checkpoint
+  save_steps: 500                
+  save_total_limit: 3           
+  checkpoint_dir: artifacts/checkpoints/pretrain/legal_vn
+  
+  # Logging
+  logging_steps: 50
+  tensorboard_dir: artifacts/runs/pretrain/legal_vn
+  
+  # Evaluation
+  eval_steps: 250
+  eval_samples: 500
+  
+  # Thiết lập phần cứng (Thiết lập cho Google Colab GPU T4)
+  device: cuda                   
+  mixed_precision: fp16         
+  
+  # Reproducibility
+  seed: 42
+
+# Supervised Fine-Tuning
+sft:
+  batch_size: 4
+  num_epochs: 3
+  learning_rate: 3.0e-5        
+  min_learning_rate: 1.0e-7
+  warmup_ratio: 0.03
+  warmup_steps: 100
+  max_steps: 1500                
+  
+  gradient_accumulation_steps: 4
+  max_grad_norm: 1.0
+  
+  optimizer: adamw
+  weight_decay: 0.0
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1.0e-8
+  
+  lr_scheduler: cosine
+  
+  # LoRA
+  use_lora: true                 
+  lora_r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  lora_target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+  
+  save_steps: 300
+  save_total_limit: 2
+  checkpoint_dir: artifacts/checkpoints/sft/legal_vn
+  
+  logging_steps: 25
+  tensorboard_dir: artifacts/runs/sft/legal_vn
+  
+  eval_steps: 150
+  
+  device: cuda
+  mixed_precision: fp16
+  seed: 42
+
+# Reinforcement Learning
+rl:
+  algorithm: grpo               
+  
+  batch_size: 4
+  num_epochs: 2
+  learning_rate: 1.0e-6         
+  min_learning_rate: 1.0e-8
+  warmup_ratio: 0.0
+  max_steps: 500
+  
+  # Cấu trúc dành riêng cho thuật toán GRPO/PPO
+  group_size: 2                  # Số lượng responses mỗi prompt generate ra (G)
+  kl_coef: 0.1                   # Hệ số phạt KL Divergence penalty
+  clip_range: 0.2                # Clipping probability ratio theo PPO-style
+  gamma: 1.0                     # Hệ số Discount factor
+  
+  # Reward model
+  reward_model: rule_based  
+  
+  gradient_accumulation_steps: 2 
+  max_grad_norm: 1.0
+  
+  optimizer: adamw
+  weight_decay: 0.0
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1.0e-8
+  
+  save_steps: 100
+  checkpoint_dir: artifacts/checkpoints/rl/legal_vn
+  
+  logging_steps: 10
+  tensorboard_dir: artifacts/runs/rl/legal_vn
+  
+  # Inference generation stage
+  max_new_tokens: 128
+  temperature: 0.7
+  top_p: 0.9
+  do_sample: true
+  
+  device: cuda
+  mixed_precision: fp16
+  seed: 42
+
+# Datasets
+data:
+  tokenizer_name: "vinai/phobert-base"
+  
+  pretrain:
+    dataset_name: "undertheseanlp/UTS_VLC"
+    dataset_config: null
+    dataset_split: "2026"
+    text_column: "content"
+    data_dir: data/pretrain
+    max_seq_length: 512
+    max_samples: 50000           # Cắt ~318 tài liệu Pháp Lý khổng lồ làm 50,000 mẩu
+    streaming: false
+    
+  sft:
+    dataset_name: "YuITC/Vietnamese-Legal-Documents"
+    dataset_split: "train"
+    data_dir: data/sft
+    max_seq_length: 512
+    max_samples: 10000           # Cực đại lấy 10K từ tập Q&A Luật sự Việt Nam
+    
+  rl:
+    dataset_name: "YuITC/Vietnamese-Legal-Documents"
+    dataset_config: default
+    dataset_split: "train"
+    data_dir: data/rl
+    max_seq_length: 256
+    max_samples: 2000            # Chỉ lấy 2K câu lệnh khó cho đánh giá
+  
+  # Cấu hình luồng xử lý Data loader
+  num_workers: 2                 # Mở workers cho Colab
+  pin_memory: true               # Hỗ trợ copy Data từ RAM sang VRAM GPU nhanh hơn
+  shuffle: true
+
+# Visualization / Debug
+visualization:
+  # Attention patterns
+  visualize_attention: false
+  attention_log_steps: 200
+  num_attention_heads_to_show: 4
+  num_attention_layers_to_show: 2
+  
+  # MoE routing
+  visualize_moe: false
+  moe_log_steps: 200
+  
+  # Tính ổn định cấu trúc
+  visualize_mtp: false
+  mtp_log_steps: 200
+  visualize_rope: false
+  rope_log_steps: 1000
+  visualize_masks: false
+  mask_log_steps: 1000
+  
+  # Đồ thị vector Embeddings (t-SNE/UMAP)
+  visualize_embeddings: false
+  embedding_log_steps: 2000
+  num_embedding_samples: 500
+  
+  # Giản đồ Loss chính
+  visualize_loss: true
+  
+  visualize_weights: false
+  weights_log_steps: 1000
+  
+  visualize_gradients: false
+  gradient_log_steps: 200
+  
+  # Kiểm định kết quả gen text nội suy
+  visualize_generation: true
+  generation_log_steps: 500
+  generation_prompts:
+    - "Căn cứ theo luật dân sự"
+    - "Theo quy định hiện hành, tội trộm cắp tài sản"
+    - "Hỏi đáp về hợp đồng lao động"
+  generation_max_length: 100
+  generation_temperature: 0.7
+
+# Inference
+inference:
+  max_new_tokens: 256
+  temperature: 0.7
+  top_p: 0.9
+  top_k: 50
+  do_sample: true
+  repetition_penalty: 1.1        # Phạt vòng lặp từ thường thấy trong văn bản hành chính
+  
+  use_mtp_decoding: true
+  batch_size: 4
+  device: auto

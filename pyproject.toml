@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vlex-ria"
+version = "0.2.0"
+description = "VLex-RIA: Vietnamese Legal LLM with MLA, MoE, and MTP"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Nhat Phong Nguyen"},
+]
+dependencies = [
+    # Deep learning core
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+
+    # Data loading & processing
+    "datasets>=2.14.0",
+    "tokenizers>=0.13.0",
+    "numpy>=1.24.0",
+
+    # Training utilities
+    "tensorboard>=2.13.0",
+    "tqdm>=4.65.0",
+
+    # Configuration
+    "pyyaml>=6.0",
+
+    # Web interface (serving module)
+    "flask>=3.0.0",
+]
+
+[project.optional-dependencies]
+# Vietnamese NLP — required for word segmentation with PhoBERT tokenizer
+vn = [
+    "underthesea>=6.8.0",
+]
+# Development tools
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+]
+# All optional extras combined
+all = [
+    "underthesea>=6.8.0",
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+vlex_ria = ["py.typed"]

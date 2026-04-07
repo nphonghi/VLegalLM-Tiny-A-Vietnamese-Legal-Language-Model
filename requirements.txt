@@ -1,0 +1,53 @@
+# VLex-RIA: Vietnamese Legal LLM
+# ================================
+# Install all core dependencies:
+#   pip install -r requirements.txt
+#
+# Or install as editable package (recommended for development):
+#   pip install -e .
+#
+# For Vietnamese word segmentation (PhoBERT):
+#   pip install -e ".[vn]"
+#
+# For development tools (pytest, black, isort):
+#   pip install -e ".[dev]"
+
+# --- Core dependencies (mirrors pyproject.toml) ---
+
+# Deep learning
+torch>=2.0.0
+transformers>=4.30.0
+
+# Data loading & processing
+datasets>=2.14.0
+tokenizers>=0.13.0
+numpy>=1.24.0
+
+# Training utilities
+tensorboard>=2.13.0
+tqdm>=4.65.0
+
+# Configuration
+pyyaml>=6.0
+
+# Web interface (serving module uses Flask)
+flask>=3.0.0
+
+# --- Optional (uncomment as needed) ---
+
+# Vietnamese NLP — word segmentation for PhoBERT tokenizer (cleaners.py)
+# underthesea>=6.8.0
+
+# LoRA / PEFT fine-tuning
+# peft>=0.4.0
+
+# Distributed training
+# deepspeed>=0.10.0
+
+# Faster data loading
+# accelerate>=0.20.0
+
+# Development tools
+# pytest>=7.0.0
+# black>=23.0.0
+# isort>=5.12.0

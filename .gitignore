@@ -1,0 +1,194 @@
+# ============================================================
+# VLex-RIA — .gitignore
+# Python / PyTorch / HuggingFace / macOS / VS Code
+# ============================================================
+
+
+# ====================================
+# OS — macOS
+# ====================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+
+# ====================================
+# IDE & Editors
+# ====================================
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains (PyCharm, etc.)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+\#*\#
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+
+# ====================================
+# Python
+# ====================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Build & distribution
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+sdist/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Type checking
+.mypy_cache/
+.pyright/
+.ruff_cache/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage/
+
+# Jupyter (ignore checkpoints but keep notebooks)
+.ipynb_checkpoints/
+
+
+# ====================================
+# Secrets & Credentials
+# ====================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*secret*
+*password*
+# HuggingFace token file
+token.txt
+hf_token.txt
+
+
+# ====================================
+# Machine Learning — Model Artifacts
+# ====================================
+# PyTorch checkpoints (large weight files)
+*.pt
+*.pth
+*.ckpt
+*.ckpt.*
+
+# HuggingFace model files
+*.safetensors
+*.bin
+*.msgpack
+tokenizer_config.json
+special_tokens_map.json
+
+# Model export formats
+*.pb
+*.pbtxt
+*.h5
+*.hdf5
+*.onnx
+
+# Numpy
+*.npy
+*.npz
+
+# TFRecords
+*.tfrecords
+
+
+# ====================================
+# Training Outputs (project-specific)
+# ====================================
+# All generated artifacts: checkpoints + TensorBoard logs
+artifacts/checkpoints/
+artifacts/runs/
+
+# Raw downloaded datasets
+- data/
++ /data/
+
+# HuggingFace datasets cache
+~/.cache/huggingface/
+.cache/
+
+
+# ====================================
+# TensorBoard
+# ====================================
+events.out.tfevents.*
+runs/
+logs/
+log/
+
+
+# ====================================
+# Data & Large Files
+# ====================================
+# Compressed archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Tabular data (usually large)
+*.parquet
+*.avro
+
+# Temporary files
+*.log
+*.tmp
+*.TMP
+*.temp
+*.bak
+tmp/
+
+
+# ====================================
+# Docker
+# ====================================
+docker-compose.override.yml
+
+
+# ====================================
+# Misc
+# ====================================
+*.local
+*.gcov
+*.gcda
+*.gcno
