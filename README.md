@@ -5,7 +5,6 @@
     <b>Efficient LLM Architecture Optimized for Vietnamese Legal Systems</b>
   </p>
 
-[**Paper (Coming Soon)**] | [**Project Page**] | [**Hugging Face**]
 
 </div>
 
@@ -15,9 +14,9 @@
 1. [Introduction](#1-introduction)
 2. [Key Milestones](#key-milestones)
 3. [Model Architecture](#2-model-architecture)
-   - [Multi-Head Latent Attention (MLA)](#multi-head-latent-attention-mla)
+   - [Multi-Head Latent Attention](#multi-head-latent-attention-mla)
    - [DeepSeekMoE](#deepseekmoe)
-   - [Multi-Token Prediction (MTP)](#multi-token-prediction-mtp)
+   - [Multi-Token Prediction](#multi-token-prediction-mtp)
 4. [Vietnamese Legal Adaptation](#3-vietnamese-legal-adaptation)
 5. [Software Stack](#4-software-stack)
    - [Training Pipeline](#training-pipeline)
@@ -31,7 +30,7 @@
 ---
 
 ## 1. Introduction
-**VLex-RIA** (Vietnamese Legal Reasoning Intelligent Assistant) là một hệ thống mô hình ngôn ngữ lớn (LLM) đột phá được thiết kế chuyên biệt cho hệ thức pháp luật Việt Nam. Dựa trên những cải tiến từ kiến trúc **DeepSeek-V3**, dự án triển khai một pipeline đào tạo end-to-end, tối ưu hóa cả về tri thức pháp lý lẫn hiệu suất tính toán trên các thiết bị hiện đại.
+**VLex-RIA** là một LLM được phát triển cho việc học tập, hiểu rõ quy trình xây dựng mô hình ngôn ngữ, cùng với đó là mong muốn xây dựng một LLM có thể giải quyết bài toán RIA với các văn bản quy phạm pháp luật Việt Nam. Dựa trên kiến trúc **DeepSeek-V3**, dự án triển khai một pipeline đào tạo end-to-end trên dữ liệu pháp luật Việt Nam.
 
 ### Key Milestones
 - **Efficiency**: Hybrid MoE with MLA KV compression.
@@ -89,8 +88,8 @@ Yêu cầu **Python >= 3.10** và **PyTorch >= 2.0**.
 
 ```bash
 # Clone the repository
-git clone https://github.com/nphonghi/LegalLM.git
-cd LegalLM
+git clone https://github.com/nphonghi/VLegalLM-Tiny-A-Vietnamese-Legal-Language-Model.git
+cd VLegalLM-Tiny-A-Vietnamese-Legal-Language-Model
 
 # Install in editable mode with all dependencies
 pip install -e ".[all]"
