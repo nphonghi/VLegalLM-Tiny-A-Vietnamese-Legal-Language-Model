@@ -2,7 +2,7 @@
   <img src="src/vlex_ria/serving/web/static/logo.png" alt="VLex-RIA" width="200"/>
   <h1>VLex-RIA: Vietnamese Legal Regulatory Impact Assessment</h1>
   <p>
-    <b>Efficient LLM Architecture Optimized for Vietnamese Legal Systems</b>
+    <b>Efficient LLM Optimized for Vietnamese Legal Systems</b>
   </p>
 
 
@@ -30,51 +30,36 @@
 ---
 
 ## 1. Introduction
-**VLex-RIA** là một LLM được phát triển cho việc học tập, hiểu rõ quy trình xây dựng mô hình ngôn ngữ, cùng với đó là mong muốn xây dựng một LLM có thể giải quyết bài toán RIA với các văn bản quy phạm pháp luật Việt Nam. Dựa trên kiến trúc **DeepSeek-V3**, dự án triển khai một pipeline đào tạo end-to-end trên dữ liệu pháp luật Việt Nam.
-
-### Key Milestones
-- **Efficiency**: Hybrid MoE with MLA KV compression.
-- **Domain Specialization**: Deep integration of Vietnamese Legal Codes, Case Laws, and Administrative circulars.
-- **Advanced Alignment**: Full support for SFT, DPO, and **GRPO** (Group Relative Policy Optimization).
-- **Environment**: Native optimization for Apple Silicon (MPS) and high-performance CUDA clusters.
+**VLex-RIA** là một LLM được phát triển cho việc học tập và nghiên cứu, hiểu rõ quy trình xây dựng mô hình ngôn ngữ, cùng với đó là mong muốn xây dựng một LLM có thể giải quyết bài toán RIA với các văn bản quy phạm pháp luật Việt Nam. Dựa trên kiến trúc **DeepSeek-V3**, dự án triển khai một pipeline đào tạo end-to-end trên dữ liệu pháp luật Việt Nam.
 
 ---
 
 ## 2. Model Architecture
-VLex-RIA kế thừa những tinh hoa kỹ thuật từ DeepSeek-V3 để đạt được sự cân bằng hoàn hảo giữa tham số mô hình và hiệu quả thực thi:
 
-### Multi-Head Latent Attention (MLA)
-Sử dụng cơ chế nén KV mã hóa thấp (low-rank compression) để giảm tối đa dung lượng KV cache. Điều này cho phép mô hình duy trì tốc độ nội suy cao ngay cả khi xử lý các hồ sơ pháp lý có độ dài văn bản lớn.
+### Multi-Head Latent Attention
 
 ### DeepSeekMoE
-Kiến trúc Mixture-of-Experts thế hệ mới:
-- **Shared Experts**: Nắm bắt các tri thức ngôn ngữ chung, đảm bảo tính ổn định của mô hình.
-- **Routed Experts**: Các chuyên gia chuyên biệt hóa cho từng khía cạnh kiến thức pháp lý (Dân sự, Hình sự, Hành chính...).
-- **Load Balancing**: Sử dụng cơ chế cân bằng tải tiên tiến để tối ưu hóa hiệu suất song song.
 
-### Multi-Token Prediction (MTP)
-Huấn luyện mô hình dự đoán đồng thời nhiều token kế tiếp. Kỹ thuật này không chỉ giúp mô hình học được cấu trúc câu pháp lý chặt chẽ hơn mà còn là tiền đề cho việc tăng tốc suy luận thông qua **Speculative Decoding**.
+### Multi-Token Prediction 
 
 ---
 
 ## 3. Vietnamese Legal Adaptation
-Chúng tôi tập trung vào việc tinh chỉnh pipeline để phù hợp với đặc thù ngôn ngữ và văn bản Việt Nam:
+Tập trung vào việc tinh chỉnh pipeline để phù hợp với đặc thù ngôn ngữ và văn bản Việt Nam:
 
 | Component | Optimization Detail |
 | :--- | :--- |
-| **Tokenizer** | Tối ưu dựa trên `vinai/phobert-base` với word segmentation `underthesea`, xử lý tốt các thuật ngữ ghép phức tạp. |
-| **LER Adapter** | Tích hợp **Legal Entity Recognition** để trích xuất các căn cứ pháp luật trực tiếp từ input, giảm thiểu tình trạng "ảo giác" (hallucination). |
-| **Numerical Stability** | Khắc phục triệt để lỗi `NaN loss` trên Apple Silicon bằng cách thay thế các giá trị `-inf` trong attention maps. |
+| **Tokenizer** | Tối ưu dựa trên `vinai/phobert-base` với word segmentation `underthesea`. |
+| **LER Adapter** | Tích hợp **Legal Entity Recognition** để trích xuất các căn cứ pháp luật trực tiếp từ input, giảm thiểu tình trạng hallucination. |
 
 ---
 
 ## 4. Software Stack
 
 ### Training Pipeline
-Hỗ trợ đầy đủ quy trình căn chỉnh mô hình chuyên sâu:
 1. **Pre-training**: Tiếp nhận tri thức pháp luật trên diện rộng.
-2. **SFT (Supervised Fine-Tuning)**: Huấn luyện theo các cặp dữ liệu Hội thoại - Giải đáp pháp lý của chuyên gia.
-3. **Alignment**: Hỗ trợ thuật toán **GRPO** (DeepSeek's signature) giúp căn chỉnh mô hình hiệu quả hơn mà không cần mô hình Critic phức tạp.
+2. **SFT**: Huấn luyện theo các cặp dữ liệu Hội thoại - Giải đáp pháp lý của chuyên gia.
+3. **RL**: Hỗ trợ thuật toán **GRPO** giúp căn chỉnh mô hình hiệu quả hơn mà không cần mô hình Critic phức tạp.
 
 ### Inference & Serving
 - **Streaming Engine**: Hỗ trợ truyền luồng token thời gian thực (SSE).
